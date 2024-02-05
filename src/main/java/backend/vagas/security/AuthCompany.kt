@@ -1,6 +1,8 @@
 package backend.vagas.security
 
 import backend.vagas.repository.CompanyRepository
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.userdetails.UsernameNotFoundException
@@ -17,7 +19,7 @@ class AuthCompany {
     lateinit var passwordEncoder: PasswordEncoder
 
     @Throws(AuthenticationException::class)
-    fun authExecute(authCompanyDto: AuthCompanyDto) {
+    fun authExecute(authCompanyDto: AuthCompanyDto): String {
         authCompanyDto.username
             ?.let { companyRepository.findByUsername(it) }
             ?.orElseThrow { throw UsernameNotFoundException("Company not found") }
@@ -25,13 +27,17 @@ class AuthCompany {
                 runCatching {
                     check(passwordEncoder.matches(authCompanyDto.password, company.password))
                 }.onSuccess {
-                    
+                    return JWT.create()
+                        .withSubject(company.id.toString())
+                        .withIssuer("Vagas")
+                        .sign(Algorithm.HMAC256("secret"))
 
                 }.onFailure {
                     throw UsernameNotFoundException("Invalid password")
                 }
 
             }
+        return "ERROR"
 
     }
 

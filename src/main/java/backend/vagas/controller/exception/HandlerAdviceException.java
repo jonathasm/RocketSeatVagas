@@ -2,6 +2,7 @@ package backend.vagas.controller.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -36,6 +37,14 @@ public class HandlerAdviceException {
         errors.put("ERROR! ", e.getLocalizedMessage());
 
         return new ResponseEntity<>(errors, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<Map<String, String>> usernameNotFoundException(UsernameNotFoundException e) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("ERROR! ", e.getLocalizedMessage());
+
+        return new ResponseEntity<>(errors, HttpStatus.UNAUTHORIZED);
     }
 }
 
