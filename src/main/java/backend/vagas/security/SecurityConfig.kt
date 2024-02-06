@@ -10,11 +10,12 @@ import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 
 
 @Configuration
 @EnableWebSecurity
-class SecurityConfig {
+class SecurityConfig(val securityFilter: SecurityFilter) {
 
     @Bean
     @Throws(Exception::class)
@@ -26,11 +27,10 @@ class SecurityConfig {
             .authorizeHttpRequests(
                 Customizer { auth ->
                     auth
-                        .anyRequest().permitAll()
-//                        .requestMatchers("/candidate").permitAll()
-//                        .requestMatchers("/company").permitAll()
-//                        .anyRequest().authenticated()
-                })
+                        .requestMatchers("/auth").permitAll()
+                        .anyRequest().authenticated()
+                }).addFilterBefore(securityFilter, BasicAuthenticationFilter::class.java)
+
         return http.build()
     }
 
