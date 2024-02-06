@@ -10,8 +10,13 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/auth")
 class AuthController(val auths: Auths) {
-    @PostMapping
-    fun auth(@RequestBody authsDto: AuthsDto): String {
-        return "null"
+    @PostMapping("/candidate")
+    fun authCandidate(@RequestBody authsDto: AuthsDto): Auths.AuthResponse {
+        return auths.authCandidate(authsDto)
+    }
+
+    @PostMapping("/company")
+    fun authCompany(@RequestBody authsDto: AuthsDto): Auths.AuthResponse {
+        return auths.authCompany(authsDto)
     }
 }

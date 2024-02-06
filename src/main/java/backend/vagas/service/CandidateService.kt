@@ -19,7 +19,6 @@ class CandidateService(private val candidateRepository: CandidateRepository) {
                 throw UserNotFoundException()
             }
         BCryptPasswordEncoder().encode(candidate.password).let { candidate.password = it }
-
         return ResponseEntity.ok(candidateRepository.save(candidate))
     }
 }

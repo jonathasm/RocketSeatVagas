@@ -15,8 +15,9 @@ class Jwt {
             .build()
             .verify(token.replace("Bearer ", ""))
             .subject
+    }.onSuccess {
+        it.replace("Bearer ", "")
     }.onFailure {
         throw JWTVerificationException("Invalid token")
-    }.onSuccess { it.replace("Bearer ", "") }
-        .getOrThrow()
+    }.getOrThrow()
 }

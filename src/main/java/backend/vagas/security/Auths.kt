@@ -13,34 +13,42 @@ import java.util.*
 
 @Service
 class Auths(val companyRepository: CompanyRepository, val candidateRepository: CandidateRepository) {
-    companion object UserData {
+    companion object AuthResponse {
+        var acessToken: String? = null
+        var expiresIn: Instant? = null
+    }
+
+    data object UserData {
         var id: UUID? = null
         var userName: String? = null
         var password: String? = null
     }
 
-    fun authCompany(authsDto: AuthsDto): String {
+
+    fun authCompany(authsDto: AuthsDto): AuthResponse {
         findUsername(companyRepository, authsDto).let {
             return executeAuth(it, authsDto)
         }
     }
 
-    fun authCandidate(authsDto: AuthsDto): String {
+    fun authCandidate(authsDto: AuthsDto): AuthResponse {
         findUsername(candidateRepository, authsDto).let {
             return executeAuth(it, authsDto)
         }
     }
 
-    fun executeAuth(userData: UserData, authsDto: AuthsDto): String {
+    fun executeAuth(userData: UserData, authsDto: AuthsDto): AuthResponse {
         BCryptPasswordEncoder().matches(authsDto.password, userData.password).let {
             if (!it) throw UsernameNotFoundException("Username or Password incorrect")
         }
-        return JWT.create()
+        AuthResponse.expiresIn = Instant.now().plus(ofMinutes(10))
+        AuthResponse.acessToken = JWT.create()
             .withIssuer("Vagas")
             .withClaim("roles", listOf("candidate"))
-            .withExpiresAt(Instant.now().plus(ofMinutes(10)))
+            .withExpiresAt(AuthResponse.expiresIn)
             .withSubject(userData.id.toString())
             .sign(HMAC256("secret"))
+        return AuthResponse
     }
 
 

@@ -27,7 +27,7 @@ class SecurityConfig(val securityFilter: SecurityFilter) {
             .authorizeHttpRequests(
                 Customizer { auth ->
                     auth
-                        .requestMatchers("/auth").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
                         .anyRequest().authenticated()
                 }).addFilterBefore(securityFilter, BasicAuthenticationFilter::class.java)
 
