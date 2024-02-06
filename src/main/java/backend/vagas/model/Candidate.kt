@@ -25,7 +25,7 @@ data class Candidate(
     ) String? = null,
     val email: @Email(message = "Email should be valid") String? = null,
 
-    val password: @Length(min = 6, message = "Password should have at least 6 characters") String? = null,
+    var password: @Length(min = 6, message = "Password should have at least 6 characters") String? = null,
     val description: String? = null,
     val curriculum: String? = null,
 
