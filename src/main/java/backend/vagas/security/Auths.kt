@@ -15,13 +15,14 @@ import java.util.*
 class Auths(val companyRepository: CompanyRepository, val candidateRepository: CandidateRepository) {
     companion object AuthResponse {
         var acessToken: String? = null
-        var expiresIn: Instant? = null
+        var expiresIn: String? = null
     }
 
     data object UserData {
         var id: UUID? = null
         var userName: String? = null
         var password: String? = null
+        var roles: List<String>? = null
     }
 
 
@@ -41,11 +42,12 @@ class Auths(val companyRepository: CompanyRepository, val candidateRepository: C
         BCryptPasswordEncoder().matches(authsDto.password, userData.password).let {
             if (!it) throw UsernameNotFoundException("Username or Password incorrect")
         }
-        AuthResponse.expiresIn = Instant.now().plus(ofMinutes(10))
+        val expiresAt = Instant.now().plus(ofMinutes(10))
+        AuthResponse.expiresIn = expiresAt.toString().substringBefore(".").replace("T", " ")
         AuthResponse.acessToken = JWT.create()
             .withIssuer("Vagas")
-            .withClaim("roles", listOf("candidate"))
-            .withExpiresAt(AuthResponse.expiresIn)
+            .withClaim("roles", userData.roles)
+            .withExpiresAt(expiresAt)
             .withSubject(userData.id.toString())
             .sign(HMAC256("secret"))
         return AuthResponse
@@ -60,6 +62,7 @@ class Auths(val companyRepository: CompanyRepository, val candidateRepository: C
                         UserData.id = it?.id
                         UserData.userName = it?.username
                         UserData.password = it?.password
+                        UserData.roles = listOf("company")
                     }
                 }.onFailure {
                     throw UsernameNotFoundException("Username or Password incorrect")
@@ -71,6 +74,7 @@ class Auths(val companyRepository: CompanyRepository, val candidateRepository: C
                         UserData.id = it?.id
                         UserData.userName = it?.username
                         UserData.password = it?.password
+                        UserData.roles = listOf("candidate")
                     }
                 }.onFailure {
                     throw UsernameNotFoundException("Username or Password incorrect")

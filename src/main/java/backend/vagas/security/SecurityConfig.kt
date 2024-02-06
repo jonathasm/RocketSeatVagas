@@ -7,8 +7,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer
 import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 
@@ -26,17 +24,11 @@ class SecurityConfig(val securityFilter: SecurityFilter) {
             }
             .authorizeHttpRequests(
                 Customizer { auth ->
-                    auth
-                        .requestMatchers("/auth/**").permitAll()
-                        .anyRequest().authenticated()
+                    auth.anyRequest().permitAll()
+                    //.requestMatchers("/auth/**").permitAll()
+                    //.anyRequest().authenticated()
                 }).addFilterBefore(securityFilter, BasicAuthenticationFilter::class.java)
 
         return http.build()
     }
-
-    @Bean
-    fun passwordEncoder(): PasswordEncoder {
-        return BCryptPasswordEncoder()
-    }
-
 }

@@ -31,12 +31,12 @@ public class HandlerAdviceException {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<Map<String, String>> userNotFoundException(UserNotFoundException e) {
+    @ExceptionHandler(UserException.class)
+    public ResponseEntity<Map<String, String>> userNotFoundException(UserException e) {
         Map<String, String> errors = new HashMap<>();
         errors.put("ERROR! ", e.getLocalizedMessage());
 
-        return new ResponseEntity<>(errors, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(errors, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(UsernameNotFoundException.class)

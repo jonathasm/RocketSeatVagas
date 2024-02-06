@@ -17,17 +17,17 @@ import java.util.*
 data class Candidate(
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    val id: UUID? = null,
-    val name: String? = null,
-    val username: @Pattern(
+    var id: UUID? = null,
+    var name: String? = null,
+    var username: @Pattern(
         regexp = "^[a-zA-Z0-9]*$",
         message = "Username should contain only letters and numbers"
     ) String? = null,
-    val email: @Email(message = "Email should be valid") String? = null,
+    var email: @Email(message = "Email should be valid") String? = null,
 
     var password: @Length(min = 6, message = "Password should have at least 6 characters") String? = null,
-    val description: String? = null,
-    val curriculum: String? = null,
+    var description: String? = null,
+    var curriculum: String? = null,
 
     @CreationTimestamp
     private val createdAt: LocalDateTime? = null
