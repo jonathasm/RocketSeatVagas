@@ -4,9 +4,11 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
+import java.util.*
 
 @Component
 class SecurityFilter(val jwt: Jwt = Jwt()) : OncePerRequestFilter() {
@@ -15,21 +17,26 @@ class SecurityFilter(val jwt: Jwt = Jwt()) : OncePerRequestFilter() {
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        SecurityContextHolder.getContext().authentication = null
-
-        request.getHeader("Authorization")?.let { it ->
-            jwt.validateToken(it).let { subject ->
-                when (subject.isEmpty()) {
-
+        request.getHeader("Authorization")?.let { header ->
+            jwt.validateToken(header).let { it ->
+                when (it.token.isEmpty()) {
                     true -> {
                         response.status = 401
                         return
                     }
 
                     false -> {
-                        request.setAttribute("company_id", subject)
+                        if (request.requestURI.startsWith("auth/company"))
+                            request.setAttribute("company_id", it.subject)
+                        else if (request.requestURI.startsWith("auth/candidate"))
+                            request.setAttribute("candidate_id", it.subject)
+
+                        val grants = listOf(it.getClaim("roles")).map {
+                            SimpleGrantedAuthority("ROLE_${it.toString().uppercase(Locale.getDefault())}")
+                        }
+
                         SecurityContextHolder.getContext().authentication =
-                            UsernamePasswordAuthenticationToken(subject, null, emptyList())
+                            UsernamePasswordAuthenticationToken(it, null, grants)
                     }
                 }
             }

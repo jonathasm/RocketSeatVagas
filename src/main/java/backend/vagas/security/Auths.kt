@@ -62,7 +62,7 @@ class Auths(val companyRepository: CompanyRepository, val candidateRepository: C
                         UserData.id = it?.id
                         UserData.userName = it?.username
                         UserData.password = it?.password
-                        UserData.roles = listOf("company")
+                        UserData.roles = listOf("COMPANY")
                     }
                 }.onFailure {
                     throw UsernameNotFoundException("Username or Password incorrect")
@@ -74,7 +74,7 @@ class Auths(val companyRepository: CompanyRepository, val candidateRepository: C
                         UserData.id = it?.id
                         UserData.userName = it?.username
                         UserData.password = it?.password
-                        UserData.roles = listOf("candidate")
+                        UserData.roles = listOf("CANDIDATE")
                     }
                 }.onFailure {
                     throw UsernameNotFoundException("Username or Password incorrect")
