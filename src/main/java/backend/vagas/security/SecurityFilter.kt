@@ -26,13 +26,21 @@ class SecurityFilter(val jwt: Jwt = Jwt()) : OncePerRequestFilter() {
                     }
 
                     false -> {
-                        if (request.requestURI.startsWith("auth/company"))
+                        if (request.requestURI.startsWith("/company"))
                             request.setAttribute("company_id", it.subject)
-                        else if (request.requestURI.startsWith("auth/candidate"))
+                        else if (request.requestURI.startsWith("/candidate"))
                             request.setAttribute("candidate_id", it.subject)
 
                         val grants = listOf(it.getClaim("roles")).map {
-                            SimpleGrantedAuthority("ROLE_${it.toString().uppercase(Locale.getDefault())}")
+                            SimpleGrantedAuthority(
+                                "ROLE_${
+                                    it.toString()
+                                        .replace("[", "")
+                                        .replace("]", "")
+                                        .replace("\"", "")
+                                        .uppercase(Locale.getDefault())
+                                }"
+                            )
                         }
 
                         SecurityContextHolder.getContext().authentication =

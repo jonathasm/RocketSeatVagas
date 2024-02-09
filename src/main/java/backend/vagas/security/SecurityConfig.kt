@@ -24,9 +24,10 @@ class SecurityConfig(val securityFilter: SecurityFilter) {
             }
             .authorizeHttpRequests(
                 Customizer { auth ->
-                    auth.anyRequest().permitAll()
-                    //.requestMatchers("/auth/**").permitAll()
-                    //.anyRequest().authenticated()
+                    auth.requestMatchers("/auth/**").permitAll()
+                    auth.requestMatchers("/company").hasRole("COMPANY")
+                    auth.requestMatchers("/candidate").hasRole("CANDIDATE")
+                        .anyRequest().authenticated()
                 }).addFilterBefore(securityFilter, BasicAuthenticationFilter::class.java)
 
         return http.build()
