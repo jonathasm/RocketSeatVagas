@@ -18,35 +18,39 @@ class SecurityFilter(val jwt: Jwt = Jwt()) : OncePerRequestFilter() {
         filterChain: FilterChain
     ) {
         request.getHeader("Authorization")?.let { header ->
-            jwt.validateToken(header).let { it ->
-                when (it.token.isEmpty()) {
-                    true -> {
-                        response.status = 401
-                        return
-                    }
-
-                    false -> {
-                        if (request.requestURI.startsWith("/company"))
-                            request.setAttribute("company_id", it.subject)
-                        else if (request.requestURI.startsWith("/candidate"))
-                            request.setAttribute("candidate_id", it.subject)
-
-                        val grants = listOf(it.getClaim("roles")).map {
-                            SimpleGrantedAuthority(
-                                "ROLE_${
-                                    it.toString()
-                                        .replace("[", "")
-                                        .replace("]", "")
-                                        .replace("\"", "")
-                                        .uppercase(Locale.getDefault())
-                                }"
-                            )
+            runCatching {
+                jwt.validateToken(header).let { it ->
+                    when (it.token.isEmpty()) {
+                        true -> {
+                            return
                         }
 
-                        SecurityContextHolder.getContext().authentication =
-                            UsernamePasswordAuthenticationToken(it, null, grants)
+                        false -> {
+                            if (request.requestURI.startsWith("/company"))
+                                request.setAttribute("company_id", it.subject)
+                            else if (request.requestURI.startsWith("/candidate"))
+                                request.setAttribute("candidate_id", it.subject)
+
+                            val grants = listOf(it.getClaim("roles")).map {
+                                SimpleGrantedAuthority(
+                                    "ROLE_${
+                                        it.toString()
+                                            .replace("[", "")
+                                            .replace("]", "")
+                                            .replace("\"", "")
+                                            .uppercase(Locale.getDefault())
+                                    }"
+                                )
+                            }
+
+                            SecurityContextHolder.getContext().authentication =
+                                UsernamePasswordAuthenticationToken(it, null, grants)
+                        }
                     }
                 }
+            }.onFailure {
+                response.status = 401
+                return response.writer.write("Invalid token")
             }
         }
         filterChain.doFilter(request, response)
