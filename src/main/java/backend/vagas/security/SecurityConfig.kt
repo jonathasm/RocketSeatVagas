@@ -15,6 +15,12 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 @EnableWebSecurity
 class SecurityConfig(val securityFilter: SecurityFilter) {
 
+    val swagger = arrayOf(
+        "/swagger-ui/**",
+        "/v3/api-docs/**",
+        "/swagger-resource/**",
+    )
+
     @Bean
     @Throws(Exception::class)
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
@@ -27,6 +33,7 @@ class SecurityConfig(val securityFilter: SecurityFilter) {
                     auth.requestMatchers("/auth/**").permitAll()
                     auth.requestMatchers("/company").hasRole("COMPANY")
                     auth.requestMatchers("/candidate").hasRole("CANDIDATE")
+                        .requestMatchers(*swagger).permitAll()
                         .anyRequest().authenticated()
                 }).addFilterBefore(securityFilter, BasicAuthenticationFilter::class.java)
 
